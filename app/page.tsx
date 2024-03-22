@@ -13,7 +13,6 @@ import { Toaster } from "@/components/ui/toaster"
 
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { title } from "process";
 
 export default function Home() {
   const [value,setValue]=useState<string|null>(null)
@@ -24,7 +23,7 @@ export default function Home() {
 
   async function Check_Filer(){
     setAnswer(null)
-
+    console.log(process.env.FASTAPI_URL)
     //Api call
     const requestbody=JSON.stringify({"filter":filter,"value":value})
     console.log(requestbody)
@@ -80,10 +79,10 @@ export default function Home() {
         {
           answer&&answer.map((item:any,index)=>(
             
-            <div className=" flex flex-wrap gap-2 border-b-yellow-600 border-b">
+            <div key={index} className=" flex flex-wrap gap-2 border-b-yellow-600 border-b">
             {index+1} | {
                 Object.keys(item).map((key)=>(
-                  <text className="w-auto">{key} : {item[key]}</text>
+                  <text key={key} className="w-auto">{key} : {item[key]}</text>
                 ))
               }
             </div>

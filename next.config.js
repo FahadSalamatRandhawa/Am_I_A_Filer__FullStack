@@ -25,6 +25,9 @@ const nextConfig = {
       },
     ];
   },
+  env:{
+    URL:"my url"
+  }
 };
 
 module.exports = nextConfig;

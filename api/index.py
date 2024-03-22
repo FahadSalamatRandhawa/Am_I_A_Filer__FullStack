@@ -6,6 +6,8 @@ import datetime
 from sqlmodel import Field, SQLModel
 from typing import Annotated
 from typing import List
+import os
+from dotenv import load_dotenv,find_dotenv
 
 
 app:FastAPI=FastAPI()
@@ -32,9 +34,11 @@ def validate_body(request_body:FilterData):
 
 @app.on_event("startup")
 async def on_startup():
+    _:bool=load_dotenv(find_dotenv())
+    print(os.getenv('INCOME_TAX'))
     global incomeTaxObject, salesTaxObject
-    incomeTaxObject = Read_XLSX("https://fbr.gov.pk/Downloads/?id=3901&Type=Docs")
-    salesTaxObject = Read_XLSX("https://www.fbr.gov.pk/Downloads/?id=77772&Type=Docs")
+    incomeTaxObject = Read_XLSX(os.getenv('INCOME_TAX'))
+    salesTaxObject = Read_XLSX(os.getenv('SALES_TAX'))
 
     #creating asynchoronous tasks to start reading files in background due to long read time
     loop = asyncio.get_event_loop()

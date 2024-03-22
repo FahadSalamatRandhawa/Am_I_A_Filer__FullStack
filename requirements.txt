@@ -6,3 +6,4 @@ pandas
 asyncio
 openpyxl
 sqlmodel
+python-dotenv

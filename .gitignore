@@ -1,5 +1,9 @@
 .env
 
+.local*.env
+
+.env.local
+
 .next
 
 /api/__pycache__
