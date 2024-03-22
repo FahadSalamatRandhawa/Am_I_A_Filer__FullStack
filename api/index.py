@@ -5,6 +5,8 @@ import asyncio
 import datetime
 from sqlmodel import Field, SQLModel
 from typing import Annotated
+from typing import List
+
 
 app:FastAPI=FastAPI()
 
@@ -75,23 +77,32 @@ def check_filer(requestdata:FilterData=Depends(validate_body)): #requestdata:Fil
             incomeTax_frame=incomeTaxObject.get_file()
             salesTax_frame=salesTaxObject.get_file()
             ATL_List = pd.concat([incomeTax_frame, salesTax_frame])
-            tax_payer=ATL_List[ATL_List[filter].str.lower()==value.lower()]
+            if(filter=="BUSINESS NAME"):
+                tax_payer=ATL_List[ATL_List["BUSINESSNAME"].str.lower()==value.lower()]
+                if tax_payer.empty:
+                    tax_payer=ATL_List[ATL_List["BUSINESS_NAME"].str.lower()==value.lower().replace(" ","")]
+            else:
+                tax_payer=ATL_List[ATL_List[filter].str.lower()==value.lower()]
 
         if not tax_payer.empty:
             # Convert SR_NO and SR to string to avoid out of Bound error for float values
             tax_payer = tax_payer.fillna("")
             tax_payer.loc[:, "SR_NO"] = tax_payer["SR_NO"].astype(str, errors='ignore')
             tax_payer.loc[:, "SR"] = tax_payer["SR"].astype(str, errors='ignore')
-            print(tax_payer)
             
-            # Reset index and convert DataFrame to JSON
-            return tax_payer.reset_index(drop=True).to_json(orient='records')
+            cleanedData:List=[]
+            for index,item in tax_payer.iterrows():
+                # remove empty values from row
+                cleanedData.append(item[item!=''])
+            print(type(cleanedData))
+            
+            return {'success':True,'data':cleanedData}
         else:
             return {'success':False,'message':"record not found"}
 
     except Exception as e:
         print(e)
-        return {"error":str(e)}
+        raise HTTPException({"details":"error in checking","error":str(e)})
 
 
 @app.get("/api/incometax")
